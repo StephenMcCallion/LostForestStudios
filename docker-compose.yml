@@ -1,0 +1,17 @@
+services:
+
+  website:
+    build:
+      context: ./website
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./website:/app
+      - /app/node_modules
+
+    environment:
+      NODE_ENV: development
+
+    command: npm run dev
