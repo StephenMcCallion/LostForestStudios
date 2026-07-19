@@ -34,6 +34,31 @@ export default function Fog() {
     return texture;
   }, []);
 
+  const radialTexture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    const gradient = context.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gradient.addColorStop(0, "rgba(157, 179, 200, 0.55)");
+    gradient.addColorStop(0.45, "rgba(157, 179, 200, 0.18)");
+    gradient.addColorStop(1, "rgba(157, 179, 200, 0)");
+
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 256, 256);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
+
+    return texture;
+  }, []);
+
   useFrame(() => {
     if (!fog.current) return;
 
@@ -65,21 +90,34 @@ export default function Fog() {
   }, []);
 
   return (
-    <points ref={fog}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[particles, 3]} />
-      </bufferGeometry>
+    <>
+      <points ref={fog}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[particles, 3]} />
+        </bufferGeometry>
 
-      <pointsMaterial
-        map={particleTexture ?? undefined}
-        color="#9db3c8"
-        size={4.5}
-        transparent
-        opacity={0.06}
-        depthWrite={false}
-        sizeAttenuation
-        blending={THREE.NormalBlending}
-      />
-    </points>
+        <pointsMaterial
+          map={particleTexture ?? undefined}
+          color="#9db3c8"
+          size={4.5}
+          transparent
+          opacity={0.06}
+          depthWrite={false}
+          sizeAttenuation
+          blending={THREE.NormalBlending}
+        />
+      </points>
+
+      <sprite position={[0, 0, 0]} scale={[35, 35, 1]} renderOrder={2}>
+        <spriteMaterial
+          map={radialTexture ?? undefined}
+          color="#9db3c8"
+          transparent
+          opacity={0.8}
+          depthWrite={false}
+          blending={THREE.NormalBlending}
+        />
+      </sprite>
+    </>
   );
 }
